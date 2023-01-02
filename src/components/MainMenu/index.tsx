@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import {
   DesktopOutlined,
   FileOutlined,
@@ -30,20 +30,41 @@ const items: MenuItem[] = [
   getItem('Option 1', '/user', <PieChartOutlined />),
   getItem('Option 2', '/about', <DesktopOutlined />),
   getItem('User', 'sub1', <UserOutlined />, [
-    getItem('Tom', '3'),
+    getItem('Item1', '/sub1/item1'),
     getItem('Bill', '4'),
     getItem('Alex', '5'),
   ]),
-  getItem('Team', 'sub2', <TeamOutlined />, [getItem('Team 1', '6'), getItem('Team 2', '8')]),
+  getItem('Team', 'sub2', <TeamOutlined />, [
+    getItem('Team 1', '6'),
+    getItem('Team 2', '8')
+  ]),
   getItem('Files', '9', <FileOutlined />),
 ];
 
-const rootSubmenuKeys = ['sub1', 'sub2']
-
 const MainMenu: React.FC = () => {
-  const [openKeys, setOpenKeys] = useState([''])
+  
   // 编程导航 hook
   const navigateTo = useNavigate()
+  // 获取路由信息 hook
+  const currentRoute = useLocation()
+  
+  // 设置默认展开项
+  let defaultOpenKey: string = ''
+  function findKey(obj: MenuItem) {
+    return obj!.key === currentRoute.pathname
+  }
+  for (let i = 0; i < items.length; i++) {
+    if (
+      items[i]!['children'] &&
+      items[i]!['children'].length > 0 &&
+      items[i]!['children'].find(findKey)
+    ) {
+      defaultOpenKey = items[i]!.key as string;
+      break;
+    }
+  }
+
+  const [openKeys, setOpenKeys] = useState([defaultOpenKey])
 
   // 菜单点击事件
   const menuClick = (e: { key: string }) => {
@@ -51,6 +72,7 @@ const MainMenu: React.FC = () => {
   }
 
   // 只能同时打开一个菜单
+  const rootSubmenuKeys = ['sub1', 'sub2']
   const onOpenChange: MenuProps['onOpenChange'] = (keys) => {
     const latestOpenKey = keys.find((key) => openKeys.indexOf(key) === -1)
     if (rootSubmenuKeys.indexOf(latestOpenKey!) === -1) {
@@ -63,7 +85,7 @@ const MainMenu: React.FC = () => {
   return (
     <Menu 
       theme="dark" 
-      defaultSelectedKeys={['/user']} 
+      defaultSelectedKeys={[currentRoute.pathname]} 
       mode="inline"
       items={items} 
       onClick={menuClick}
