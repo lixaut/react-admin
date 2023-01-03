@@ -1,0 +1,14 @@
+
+.login {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  .form {
+    width: 360px;
+    h2 {
+      padding-left: 7px;
+    }
+  }
+}
